@@ -25,10 +25,10 @@ write.csv(cattle1,'cattle1.csv')
 #Integrate orthologous genes from multiple species
 cattle <- read.csv('xxx/catttle1.csv',sep=',',header=T)  #The result of the previous step
 camel <- read.csv('xxx/camel1.csv',sep=',',header=T)
-er <- left_join(cattle,camel,by='Preferred_name') #Multiple species are added sequentially
+dat <- left_join(cattle,camel,by='Preferred_name') #Multiple species are added sequentially
 old_column_names <- c("Preferred_name", "Gene.name_cow", "Gene.name_camel")
 new_column_names <- c("Gene.name", "Cow.gene.name", "Camel.gene.name")
 for (i in 1:length(new_column_names)) {
-  colnames(er)[colnames(er) == old_column_names[i]] <- new_column_names[i]
+  colnames(dat)[colnames(er) == old_column_names[i]] <- new_column_names[i]
 }
-write.csv(er,'xxx/cattle-camel-orthologous.CSV')
+write.csv(dat,'xxx/cattle-camel-orthologous.CSV')
