@@ -1,0 +1,33 @@
+import scanpy as sc
+import sys
+import scvelo as scv
+#import cellrank as cr
+import numpy as np
+import pandas as pd
+import anndata as ad
+import os
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+os.chdir('your_file/velocyto_2')
+adata1=scv.read('test.h5ad')
+#adata=adata.raw.to_adata()
+ldata1=scv.read('SRR23083687.loom')
+barcodes = [bc.split(':')[1] for bc in ldata1.obs.index.tolist()]
+barcodes = [bc[0:len(bc)-1] + '-1' for bc in barcodes]
+ldata1.obs.index = barcodes
+ldata1.var_names_make_unique()
+
+adata = scv.utils.merge(adata1, ldata1)
+adata.obs['celltype']=adata.obs['celltype'].astype('category').values
+scv.pl.proportions(adata,groupby='celltype')
+scv.pp.filter_and_normalize(adata)
+scv.pp.moments(adata)
+scv.tl.velocity(adata, mode='stochastic')
+#scv.tl.velocity(adata, mode='deterministic')
+scv.tl.velocity_graph(adata)
+adata.write("your_filename.h5ad")
+
+colors = ['#440154', '#31688E', '#35B779', '#FDE725'] 
+cmap = mcolors.LinearSegmentedColormap.from_list("my_cmap", colors)
+scv.pl.velocity_embedding_grid(adata, basis='umap', color='celltype', save='embedding_grid.pdf', title='', scale=0.25,figsize =(6,7))
+scv.pl.velocity(adata, var_names=['HMGCS2'], color='celltype',save='cow_HMGCS2.pdf')
