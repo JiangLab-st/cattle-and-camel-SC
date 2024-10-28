@@ -1,0 +1,21 @@
+library(CoGAPS)
+library(gplots)
+library(projectR)
+
+ss <- read.table("sa.matrix",sep="\t")
+params <- new("CogapsParams")
+params <- setDistributedParams(params, nSets=2)
+params <- setParam(params, "nIterations", 1000)
+#---
+params <- setParam(params, "nPatterns", 60)
+#result <- CoGAPS(ss, params, distributed="single-cell", transposeData=TRUE, nIterations=1000)
+result <- CoGAPS(t(ss), params, distributed="single-cell", messages=FALSE, transposeData=TRUE, nIterations=1000, seed=123)
+pm <- patternMarkers(result)
+max_len <- max(lengths(pm$PatternMarkers))
+my_list <- lapply(pm$PatternMarkers, function(x) {length(x) <- max_len; x})
+my_df <- data.frame(my_list)
+write.table(my_df,"02.pattern.marker.list",sep='\t')
+#output
+saveRDS(result,"res.rds")
+write.csv(result@sampleFactors ,"cell.weight.csv")
+write.csv(result@featureLoadings ,"gene.weight.csv")
